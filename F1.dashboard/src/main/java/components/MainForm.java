@@ -10,6 +10,7 @@ import java.awt.*;
 public class MainForm extends BlurBackground {
 
 
+
     public MainForm(){
         ImageIcon icon = new ImageIcon(getClass().getResource("/local/imgs/background.jpg"));
         setImage(icon.getImage());
@@ -37,5 +38,6 @@ public class MainForm extends BlurBackground {
     private SystemMenu systemMenu = new SystemMenu();
     private Title title = new Title();
     private JDesktopPane desktop = new JDesktopPane();
+
 
 }

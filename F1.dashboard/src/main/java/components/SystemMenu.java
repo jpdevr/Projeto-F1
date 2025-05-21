@@ -1,6 +1,9 @@
 package components;
 
+import FormsData.Drivers;
 import com.formdev.flatlaf.FlatClientProperties;
+import conexao.conexao;
+import information.Ergast;
 import net.miginfocom.swing.MigLayout;
 import raven.drawer.component.header.SimpleHeader;
 import raven.drawer.component.header.SimpleHeaderData;
@@ -12,10 +15,19 @@ import raven.swing.blur.style.GradientColor;
 import raven.swing.blur.style.Style;
 import raven.swing.blur.style.StyleBorder;
 import raven.swing.blur.style.StyleOverlay;
+import login_register.Usuario;
+import conexao.conexao;
+import java.sql.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.sql.ResultSet;
+
+import static conexao.conexao.statement;
 
 public class SystemMenu extends BlurChild {
 
@@ -56,10 +68,55 @@ public class SystemMenu extends BlurChild {
     }
 
     private SimpleHeaderData getHeaderData(){
+        String nome = Usuario.SessaoUsuario.nomeUsuario;
+        int ID = Usuario.SessaoUsuario.userLogged;
+        InputStream foto;
+        conexao comb = new conexao();
+
+        String sql = "SELECT * FROM user where id='" + ID + "';";
+
+        System.out.println(sql);
+        try{
+            comb.conectar();
+
+            ResultSet rs = statement.executeQuery(sql);
+
+            System.out.println(rs);
+
+            if(rs.next()){
+                    foto = rs.getBinaryStream("icon");
+
+                    String caminhoProjeto = System.getProperty("user.dir");
+                    File arquivoImagem = new File("/src/main/resources/local/imgs/foto"+ID+".jpg");
+
+                    try (OutputStream outputStream = new FileOutputStream(caminhoProjeto+arquivoImagem)) {
+                        byte[] buffer = new byte[128000000];
+                        int bytesRead;
+
+                        while ((bytesRead = foto.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+                        outputStream.close();
+                        System.out.println("Imagem salva em: " + arquivoImagem.getAbsolutePath());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+            }
+            comb.desconectar();
+
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            System.out.println("erro");
+        }
+
+
         return new SimpleHeaderData()
-                .setTitle("JPdevr")
+                .setTitle(nome)
                 .setDescription("Java Student")
-                .setIcon(new AvatarIcon(getClass().getResource("/local/imgs/avatar.png"),60,60,999));
+                .setIcon(new AvatarIcon(getClass().getResource("/local/imgs/foto"+ID+".jpg"),60,60,999));
+
     }
 
     private SimpleMenuOption getMenuOption(){
@@ -107,24 +164,66 @@ public class SystemMenu extends BlurChild {
                 })
                 .addMenuEvent(new MenuEvent() {
                     @Override
-                    public void selected(MenuAction menuAction, int[] ints) {
+                    public void selected(MenuAction menuAction, int[] into) {
                         System.out.println("menu select");
-                        if(ints.length == 1){
-                            int index = ints[0];
+                        if(into.length == 1){
+                            int index = into[0];
                             if(index == 0){
-                                formManager.getInstance().showForm("Dashboard Title",new JLabel("Dashboard",  SwingConstants.CENTER) );
+                                Drivers.getInstance().showForm("Dashboard", new JLabel("dashboard"));
+                            }        else if (index == 2) {
+                                formManager.getInstance().showForm("Notícias", new JLabel("Notícias", SwingConstants.CENTER));
                             }
-                        } else if (ints.length == 2) {
-                            int index = ints[0];
-                            int subIndex = ints[1];
+                            else if (index == 3) {
+                                formManager.getInstance().showForm("Calendário", new JLabel("Calendário", SwingConstants.CENTER));
+                            }
+
+                        } else if (into.length == 2) {
+                            int index = into[0];
+                            int subIndex = into[1];
                             if (index == 1) {
                                 if (subIndex == 0) {
-                                    formManager.getInstance().showForm("Blur Inbox Title", new JLabel("Inbox", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Equipes", new JLabel("Equipes", SwingConstants.CENTER));
                                 } else if (subIndex == 1) {
-                                    formManager.getInstance().showForm("Simple Read Title", new JLabel("Read", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Pilotos", new JLabel("Pilotos", SwingConstants.CENTER));
+                                } else if (subIndex == 2) {
+                                    formManager.getInstance().showForm("Carros", new JLabel("Carros", SwingConstants.CENTER));
+                                }
+                            }
+
+                            else if (index == 4) {
+                                if (subIndex == 0) {
+                                    formManager.getInstance().showForm("Resultados", new JLabel("Resultados", SwingConstants.CENTER));
+                                } else if (subIndex == 1) {
+                                    formManager.getInstance().showForm("Circuitos", new JLabel("Circuitos", SwingConstants.CENTER));
+                                } else if (subIndex == 2) {
+                                    formManager.getInstance().showForm("Dados", new JLabel("Dados", SwingConstants.CENTER));
+                                }
+                            }
+
+                            else if (index == 5) {
+                                if (subIndex == 0) {
+                                    formManager.getInstance().showForm("Vencedores", new JLabel("Resultados", SwingConstants.CENTER));
+                                } else if (subIndex == 1) {
+                                    formManager.getInstance().showForm("Construtores", new JLabel("Circuitos", SwingConstants.CENTER));
+                                } else if (subIndex == 2) {
+                                    formManager.getInstance().showForm("Recordes", new JLabel("Dados", SwingConstants.CENTER));
+                                } else if (subIndex == 3) {
+                                    formManager.getInstance().showForm("Histórias", new JLabel("Dados", SwingConstants.CENTER));
+                                }
+
+                            }
+
+                            else if (index == 6) {
+                                if (subIndex == 0) {
+                                    formManager.getInstance().showForm("Alterar Foto de Perfil", new JLabel("Resultados", SwingConstants.CENTER));
+                                } else if (subIndex == 1) {
+                                    formManager.getInstance().showForm("Alterar Apelido", new JLabel("Circuitos", SwingConstants.CENTER));
+                                } else if (subIndex == 2) {
+                                    formManager.getInstance().showForm("Configurações de conta & Acesso", new JLabel("Dados", SwingConstants.CENTER));
                                 }
                             }
                         }
+
                     }
                 })
                 ;
