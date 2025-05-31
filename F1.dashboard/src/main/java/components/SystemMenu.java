@@ -169,7 +169,7 @@ public class SystemMenu extends BlurChild {
                         if(into.length == 1){
                             int index = into[0];
                             if(index == 0){
-                                Drivers.getInstance().showForm("Dashboard", new JLabel("dashboard"));
+                                formManager.getInstance().showForm("Dashboard", new JLabel("dashboard"));
                             }        else if (index == 2) {
                                 formManager.getInstance().showForm("Notícias", new JLabel("Notícias", SwingConstants.CENTER));
                             }
@@ -184,7 +184,7 @@ public class SystemMenu extends BlurChild {
                                 if (subIndex == 0) {
                                     formManager.getInstance().showForm("Equipes", new JLabel("Equipes", SwingConstants.CENTER));
                                 } else if (subIndex == 1) {
-                                    formManager.getInstance().showForm("Pilotos", new JLabel("Pilotos", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Pilotos", new Drivers());
                                 } else if (subIndex == 2) {
                                     formManager.getInstance().showForm("Carros", new JLabel("Carros", SwingConstants.CENTER));
                                 }

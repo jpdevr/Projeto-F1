@@ -20,7 +20,6 @@ public class TestLoginRegisterForm extends JFrame {
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         getRootPane().putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, true);
-        setSize(new Dimension(1366, 768));
         setLocationRelativeTo(null);
         setLayout(new MigLayout("al center center"));
 
