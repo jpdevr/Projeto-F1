@@ -1,6 +1,6 @@
 package components;
 
-import FormsData.Drivers;
+import FormsData.*;
 import com.formdev.flatlaf.FlatClientProperties;
 import conexao.conexao;
 import information.Ergast;
@@ -142,9 +142,8 @@ public class SystemMenu extends BlurChild {
                         .subMenu("Histórias"),
                 new Item.Label("CONFIG"),
                 new Item("Perfil", "config.svg")
-                        .subMenu("Alterar foto")
-                        .subMenu("Alterar apelido")
-                        .subMenu("Config. acesso")
+                        .subMenu("Alterar perfil")
+                        .subMenu("Sobre")
         };
         return new SimpleMenuOption()
                 .setBaseIconPath("local/menu")
@@ -174,7 +173,7 @@ public class SystemMenu extends BlurChild {
                                 formManager.getInstance().showForm("Notícias", new JLabel("Notícias", SwingConstants.CENTER));
                             }
                             else if (index == 3) {
-                                formManager.getInstance().showForm("Calendário", new JLabel("Calendário", SwingConstants.CENTER));
+                                formManager.getInstance().showForm("Calendário", new Calendar());
                             }
 
                         } else if (into.length == 2) {
@@ -182,11 +181,11 @@ public class SystemMenu extends BlurChild {
                             int subIndex = into[1];
                             if (index == 1) {
                                 if (subIndex == 0) {
-                                    formManager.getInstance().showForm("Equipes", new JLabel("Equipes", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Equipes", new Teams());
                                 } else if (subIndex == 1) {
                                     formManager.getInstance().showForm("Pilotos", new Drivers());
                                 } else if (subIndex == 2) {
-                                    formManager.getInstance().showForm("Carros", new JLabel("Carros", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Carros", new Cars());
                                 }
                             }
 
@@ -194,7 +193,7 @@ public class SystemMenu extends BlurChild {
                                 if (subIndex == 0) {
                                     formManager.getInstance().showForm("Resultados", new JLabel("Resultados", SwingConstants.CENTER));
                                 } else if (subIndex == 1) {
-                                    formManager.getInstance().showForm("Circuitos", new JLabel("Circuitos", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Circuitos", new Circuits());
                                 } else if (subIndex == 2) {
                                     formManager.getInstance().showForm("Dados", new JLabel("Dados", SwingConstants.CENTER));
                                 }
@@ -215,11 +214,9 @@ public class SystemMenu extends BlurChild {
 
                             else if (index == 6) {
                                 if (subIndex == 0) {
-                                    formManager.getInstance().showForm("Alterar Foto de Perfil", new JLabel("Resultados", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Alterar Perfil", new Profile());
                                 } else if (subIndex == 1) {
-                                    formManager.getInstance().showForm("Alterar Apelido", new JLabel("Circuitos", SwingConstants.CENTER));
-                                } else if (subIndex == 2) {
-                                    formManager.getInstance().showForm("Configurações de conta & Acesso", new JLabel("Dados", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Sobre", new JLabel("Sobre", SwingConstants.CENTER));
                                 }
                             }
                         }

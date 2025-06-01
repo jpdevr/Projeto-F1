@@ -1,7 +1,8 @@
 package login_register;
 
 import conexao.conexao;
-import org.w3c.dom.ls.LSOutput;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
 
 import javax.swing.*;
 
@@ -9,6 +10,7 @@ import static conexao.conexao.statement;
 
 import java.io.*;
 import java.sql.*;
+import java.util.Properties;
 
 public class Usuario{
 
@@ -26,6 +28,70 @@ public class Usuario{
         public static String getNomeUsuario() {
             return nomeUsuario;
         }
+    }
+
+    public String userPassword(String email, String user){
+
+        Email = email;
+        nome = user;
+        conexao comb = new conexao();
+
+        String sql = "SELECT * FROM user where email='" + Email + "' and usuario='" + nome + "';";
+
+        System.out.println(sql);
+        try{
+            comb.conectar();
+
+            ResultSet rs = statement.executeQuery(sql);
+
+            System.out.println(rs);
+
+            if(rs.next()){
+                String emailc = rs.getString("email");
+                String userc = rs.getString("usuario");
+                if(Email.equals(emailc) & nome.equals(userc)){
+                    Senha=rs.getString("senha");
+                    final String fromEmail = "joaogapires@gmail.com"; // seu e-mail
+                    final String password = "famqxzylphydjiao"; // use senha de app do Gmail
+
+                    Properties props = new Properties();
+                    props.put("mail.smtp.host", "smtp.gmail.com"); // servidor SMTP do Gmail
+                    props.put("mail.smtp.port", "587"); // porta TLS
+                    props.put("mail.smtp.auth", "true");
+                    props.put("mail.smtp.starttls.enable", "true");
+
+                    // Criação da sessão
+                    Session session = Session.getInstance(props, new Authenticator() {
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(fromEmail, password);
+                        }
+                    });
+
+                    try {
+                        Message message = new MimeMessage(session);
+                        message.setFrom(new InternetAddress(fromEmail));
+                        message.setRecipients(
+                                Message.RecipientType.TO, InternetAddress.parse(email));
+                        message.setText("Sua senha é: " + Senha);
+
+                        Transport.send(message);
+                        System.out.println("E-mail enviado com sucesso");
+                        return "sucesso";
+                    } catch (MessagingException e) {
+                        e.printStackTrace();
+                        return "erro";
+                    }
+                }
+            }
+            comb.desconectar();
+
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            System.out.println("erro");
+            return "erro";
+        }
+        return "erro";
     }
 
     public boolean userLogin(String EmailLogin, String SenhaLogin){
