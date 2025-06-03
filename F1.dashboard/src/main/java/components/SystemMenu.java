@@ -67,57 +67,59 @@ public class SystemMenu extends BlurChild {
         add(scrollPane);
     }
 
-    private SimpleHeaderData getHeaderData(){
+    private SimpleHeaderData getHeaderData() {
         String nome = Usuario.SessaoUsuario.nomeUsuario;
         int ID = Usuario.SessaoUsuario.userLogged;
-        InputStream foto;
+        Icon icon = null;
+
         conexao comb = new conexao();
+        String sql = "SELECT icon FROM user WHERE id = ?";
 
-        String sql = "SELECT * FROM user where id='" + ID + "';";
-
-        System.out.println(sql);
-        try{
+        try {
             comb.conectar();
+            Connection conn = comb.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, ID);
+            ResultSet rs = ps.executeQuery();
 
-            ResultSet rs = statement.executeQuery(sql);
+            if (rs.next()) {
+                InputStream fotoStream = rs.getBinaryStream("icon");
+                if (fotoStream != null) {
+                    BufferedImage imagem = ImageIO.read(fotoStream);
+                    if (imagem != null) {
+                        // Redimensiona
+                        int size = 60;
+                        Image scaledImage = imagem.getScaledInstance(size, size, Image.SCALE_SMOOTH);
 
-            System.out.println(rs);
+                        // Cria imagem redonda
+                        BufferedImage roundImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+                        Graphics2D g2 = roundImage.createGraphics();
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2.setClip(new java.awt.geom.Ellipse2D.Float(0, 0, size, size));
+                        g2.drawImage(scaledImage, 0, 0, null);
+                        g2.dispose();
 
-            if(rs.next()){
-                    foto = rs.getBinaryStream("icon");
-
-                    String caminhoProjeto = System.getProperty("user.dir");
-                    File arquivoImagem = new File("/src/main/resources/local/imgs/foto"+ID+".jpg");
-
-                    try (OutputStream outputStream = new FileOutputStream(caminhoProjeto+arquivoImagem)) {
-                        byte[] buffer = new byte[128000000];
-                        int bytesRead;
-
-                        while ((bytesRead = foto.read(buffer)) != -1) {
-                            outputStream.write(buffer, 0, bytesRead);
-                        }
-                        outputStream.close();
-                        System.out.println("Imagem salva em: " + arquivoImagem.getAbsolutePath());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        icon = new ImageIcon(roundImage); // Aqui é o que interessa
                     }
-
+                }
             }
+
+            rs.close();
+            ps.close();
             comb.desconectar();
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Erro ao carregar a imagem do banco.");
         }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-            System.out.println("erro");
-        }
-
 
         return new SimpleHeaderData()
                 .setTitle(nome)
-                .setDescription("Java Student")
-                .setIcon(new AvatarIcon(getClass().getResource("/local/imgs/foto"+ID+".jpg"),60,60,999));
-
+                .setDescription("Conta Padrão")
+                .setIcon(icon);
     }
+
+
 
     private SimpleMenuOption getMenuOption(){
         raven.drawer.component.menu.data.MenuItem items[] = new raven.drawer.component.menu.data.MenuItem[]{
