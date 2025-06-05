@@ -70,6 +70,7 @@ public class SystemMenu extends BlurChild {
     private SimpleHeaderData getHeaderData() {
         String nome = Usuario.SessaoUsuario.nomeUsuario;
         int ID = Usuario.SessaoUsuario.userLogged;
+        String desc = Usuario.SessaoUsuario.nivel;
         Icon icon = null;
 
         conexao comb = new conexao();
@@ -115,11 +116,9 @@ public class SystemMenu extends BlurChild {
 
         return new SimpleHeaderData()
                 .setTitle(nome)
-                .setDescription("Conta Padrão")
+                .setDescription(desc)
                 .setIcon(icon);
     }
-
-
 
     private SimpleMenuOption getMenuOption(){
         raven.drawer.component.menu.data.MenuItem items[] = new raven.drawer.component.menu.data.MenuItem[]{

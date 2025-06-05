@@ -25,6 +25,7 @@ public class Usuario{
     public class SessaoUsuario{
         public static int userLogged;
         public static String nomeUsuario;
+        public static String nivel;
         public static String getNomeUsuario() {
             return nomeUsuario;
         }
@@ -117,8 +118,10 @@ public class Usuario{
                 if(Email.equals(emailc) & Senha.equals(senhac)){
                     ID = rs.getInt("id");
                     nome = rs.getString("usuario");
+                    Nivel = rs.getString("nivel");
                     SessaoUsuario.userLogged = ID;
                     SessaoUsuario.nomeUsuario = nome;
+                    SessaoUsuario.nivel = Nivel;
 
                     return true;
                 }

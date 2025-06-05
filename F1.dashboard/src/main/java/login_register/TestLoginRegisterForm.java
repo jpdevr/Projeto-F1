@@ -10,12 +10,22 @@ import raven.modal.option.BorderOption;
 import raven.modal.option.Option;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import components.MainForm;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class TestLoginRegisterForm extends JFrame {
 
     public TestLoginRegisterForm() {
+        try {
+            BufferedImage icon = ImageIO.read(getClass().getResource("/local/imgs/logo.png"));
+            setIconImage(icon);
+        } catch (Exception e) {
+            System.out.println("Erro ao carregar o ícone: " + e.getMessage());
+        }
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setExtendedState(JFrame.MAXIMIZED_BOTH);

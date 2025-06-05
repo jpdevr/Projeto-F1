@@ -5,8 +5,10 @@ import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import components.MainForm;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class application extends JFrame {
 
@@ -23,6 +25,13 @@ public class application extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().add(mainForm);
         getRootPane().putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, true);
+
+        try {
+            BufferedImage icon = ImageIO.read(getClass().getResource("/local/imgs/logo.png"));
+            setIconImage(icon);
+        } catch (Exception e) {
+            System.out.println("Erro ao carregar o ícone: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {

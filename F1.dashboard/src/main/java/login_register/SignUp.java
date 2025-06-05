@@ -155,18 +155,23 @@ public class SignUp extends JPanel {
                 LocalDate data = LocalDate.parse(dt, formatoEntrada);
                 String dt_nasc = data.format(formatoSaida);
 
-                if(email.equals(emailconfirm)){
+                if (validarEmails(email, emailconfirm)) {
                     if(Sign.userSignup(email, senha, dt_nasc, user, imagemStream).equals("Sucesso")){
                         JOptionPane.showMessageDialog(null, "Cadastrado com sucesso! Faça login para acessar o sistema");
                     }else{
                         JOptionPane.showMessageDialog(null,"Erro no seu cadastro, verifique as informações");
                     }
-                }else{
-                    JOptionPane.showMessageDialog(null,"Email incorreto");
+                    // seu código atual aqui
+                } else {
+                    JOptionPane.showMessageDialog(null,"Os emails não conferem!");
                 }
 
             }
         });
+    }
+
+    public static boolean validarEmails(String email, String emailConfirm) {
+        return email != null && email.equals(emailConfirm);
     }
 
     private void installRevealButton(JPasswordField txt) {
