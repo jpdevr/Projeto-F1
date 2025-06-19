@@ -187,12 +187,6 @@ public class Usuario{
 
     }
 
-
-    public boolean forgotPassword(){
-
-        return true;
-    }
-
 }
 
 

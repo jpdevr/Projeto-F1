@@ -134,16 +134,14 @@ public class SystemMenu extends BlurChild {
                 new Item.Label("CAMPEONATO"),
                 new Item("Corridas", "circuit.svg")
                         .subMenu("Resultados")
-                        .subMenu("Circuitos")
-                        .subMenu("Dados"),
+                        .subMenu("Circuitos"),
                 new Item("Temporadas", "seasons.svg")
                         .subMenu("Vencedores")
                         .subMenu("Construtores")
-                        .subMenu("Recordes")
-                        .subMenu("Histórias"),
+                        .subMenu("Recordes"),
                 new Item.Label("CONFIG"),
                 new Item("Perfil", "config.svg")
-                        .subMenu("Alterar perfil")
+                        .subMenu("Configurar perfil")
                         .subMenu("Sobre")
         };
         return new SimpleMenuOption()
@@ -169,7 +167,7 @@ public class SystemMenu extends BlurChild {
                         if(into.length == 1){
                             int index = into[0];
                             if(index == 0){
-                                formManager.getInstance().showForm("Dashboard", new JLabel("dashboard"));
+                                formManager.getInstance().showForm("Dashboard", new Dashboard());
                             }        else if (index == 2) {
                                 formManager.getInstance().showForm("Notícias", new JLabel("Notícias", SwingConstants.CENTER));
                             }
@@ -195,29 +193,22 @@ public class SystemMenu extends BlurChild {
                                     formManager.getInstance().showForm("Resultados", new JLabel("Resultados", SwingConstants.CENTER));
                                 } else if (subIndex == 1) {
                                     formManager.getInstance().showForm("Circuitos", new Circuits());
-                                } else if (subIndex == 2) {
-                                    formManager.getInstance().showForm("Dados", new JLabel("Dados", SwingConstants.CENTER));
                                 }
                             }
 
                             else if (index == 5) {
                                 if (subIndex == 0) {
-                                    formManager.getInstance().showForm("Vencedores", new JLabel("Resultados", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Vencedores", new JLabel("Vencedores", SwingConstants.CENTER));
                                 } else if (subIndex == 1) {
-                                    formManager.getInstance().showForm("Construtores", new JLabel("Circuitos", SwingConstants.CENTER));
-                                } else if (subIndex == 2) {
-                                    formManager.getInstance().showForm("Recordes", new JLabel("Dados", SwingConstants.CENTER));
-                                } else if (subIndex == 3) {
-                                    formManager.getInstance().showForm("Histórias", new JLabel("Dados", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Recordes", new JLabel("Recordes", SwingConstants.CENTER));
                                 }
-
                             }
 
                             else if (index == 6) {
                                 if (subIndex == 0) {
                                     formManager.getInstance().showForm("Alterar Perfil", new Profile());
                                 } else if (subIndex == 1) {
-                                    formManager.getInstance().showForm("Sobre", new JLabel("Sobre", SwingConstants.CENTER));
+                                    formManager.getInstance().showForm("Sobre", new Sobre());
                                 }
                             }
                         }

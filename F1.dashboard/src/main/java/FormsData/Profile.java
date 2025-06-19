@@ -14,18 +14,13 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import conexao.conexao;
+import java.sql.*;
 
-import static conexao.conexao.statement;
+import conexao.conexao;
 
 public class Profile extends BlurChild {
 
@@ -33,6 +28,7 @@ public class Profile extends BlurChild {
     private JPasswordField txtSenha;
     private JLabel labelFoto;
     private BufferedImage imagemPerfil;
+    private JPanel painel;
 
     public Profile() {
         super(new Style()
@@ -44,8 +40,7 @@ public class Profile extends BlurChild {
                                 new Color(150, 150, 150),
                                 new Color(200, 200, 200),
                                 new Point2D.Float(0, 0),
-                                new Point2D.Float(1f, 0))
-                        )
+                                new Point2D.Float(1f, 0)))
                 )
                 .setOverlay(new StyleOverlay(new Color(250, 250, 250), 0.04f))
         );
@@ -56,12 +51,20 @@ public class Profile extends BlurChild {
         setOpaque(false);
         setLayout(new BorderLayout());
 
-        JPanel painel = new JPanel(new MigLayout(
-                "wrap 2, insets 20, fillx",
-                "[fill]20[fill]",
-                ""
-        ));
+        painel = new JPanel(new MigLayout("wrap 2, insets 20, fillx", "[fill]20[fill]", ""));
         painel.setOpaque(false);
+        add(painel, BorderLayout.CENTER);
+
+        if (Usuario.SessaoUsuario.nivel.equalsIgnoreCase("administrador")) {
+            carregarPainelAdmin();
+        } else {
+            carregarPainelUsuario();
+        }
+    }
+
+    // Painel padrão do usuário comum
+    private void carregarPainelUsuario() {
+        painel.removeAll();
 
         txtUsuario = new JTextField();
         txtUsuario.putClientProperty(FlatClientProperties.STYLE, "arc:999");
@@ -77,40 +80,186 @@ public class Profile extends BlurChild {
 
         painel.add(new JLabel("Email:"));
         painel.add(new JLabel("Usuário:"));
-
         painel.add(txtEmail);
         painel.add(txtUsuario);
 
         painel.add(new JLabel("Senha:"));
         painel.add(new JLabel("Data de Nascimento:"));
-
         painel.add(txtSenha);
         painel.add(txtNascimento);
 
         JButton btnSalvar = new JButton("Salvar Alterações");
         JButton btnExcluir = new JButton("Excluir Perfil");
 
-        // Estilo dos botões
-        String estiloBotao = "" +
-                "background:#FF0000;" +
-                "foreground:#FFFFFF;" +
-                "font:bold;" +
-                "arc:999;";
+        String estiloBotao = "background:#FF0000;foreground:#FFFFFF;font:bold;arc:999;";
         btnSalvar.putClientProperty(FlatClientProperties.STYLE, estiloBotao);
         btnExcluir.putClientProperty(FlatClientProperties.STYLE, estiloBotao);
 
         painel.add(btnSalvar, "gapy 20, growx");
         painel.add(btnExcluir, "growx");
 
-        add(painel, BorderLayout.CENTER);
-
-        carregarDadosUsuario();
-
         btnSalvar.addActionListener(e -> salvarAlteracoes());
         btnExcluir.addActionListener(e -> excluirPerfil());
+
+        carregarDadosUsuario();
+        revalidate();
+        repaint();
     }
 
+    // Painel para administradores
+    private void carregarPainelAdmin() {
+        painel.removeAll();
+        painel.setLayout(new MigLayout("wrap 1, insets 20, fillx", "[fill]", ""));
 
+        try {
+            conexao comb = new conexao();
+            comb.conectar();
+            Connection conn = comb.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM user");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("usuario");
+                String email = rs.getString("email");
+                String nivel = rs.getString("nivel");
+                String dtNasc = rs.getString("dt_nasc");
+                Blob blobIcon = rs.getBlob("icon");
+
+                JPanel card = new JPanel(new MigLayout("wrap 2", "[grow][right]", "[]"));
+                card.setOpaque(false);
+
+                JLabel lblNome = new JLabel("Usuário: " + nome);
+                JLabel lblEmail = new JLabel("Email: " + email);
+                JLabel lblNivel = new JLabel("Nível: " + nivel);
+                JLabel lblDtNasc = new JLabel("Nascimento: " + dtNasc);
+
+                JPanel info = new JPanel(new MigLayout("wrap 1"));
+                info.setOpaque(false);
+                info.add(lblNome);
+                info.add(lblEmail);
+                info.add(lblNivel);
+                info.add(lblDtNasc);
+
+                JLabel icon = new JLabel();
+                if (blobIcon != null) {
+                    try (InputStream in = blobIcon.getBinaryStream()) {
+                        BufferedImage img = ImageIO.read(in);
+                        icon.setIcon(criarImagemRedonda(img, 60));
+                    }
+                }
+
+                JButton btnExcluir = new JButton("Excluir");
+                JButton btnPromover = new JButton("Alternar Nível");
+
+                String estilo = "background:#FF0000;foreground:#FFFFFF;font:bold;arc:999;";
+                btnExcluir.putClientProperty(FlatClientProperties.STYLE, estilo);
+                btnPromover.putClientProperty(FlatClientProperties.STYLE, estilo);
+
+                JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                botoes.setOpaque(false);
+                botoes.add(btnExcluir);
+                botoes.add(btnPromover);
+
+                card.add(icon, "spany 2");
+                card.add(info);
+                card.add(botoes, "span");
+
+                painel.add(card);
+
+                btnExcluir.addActionListener(e -> excluirUsuario(id));
+                btnPromover.addActionListener(e -> alternarNivel(id, nivel));
+            }
+
+            comb.desconectar();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar usuários: " + e.getMessage());
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    private void salvarAlteracoes() {
+        int userId = Usuario.SessaoUsuario.userLogged;
+        String sql = "UPDATE user SET usuario=?, email=?, senha=?, dt_nasc=? WHERE id=?";
+
+        try {
+            conexao comb = new conexao();
+            comb.conectar();
+            Connection conn = comb.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, txtUsuario.getText());
+            ps.setString(2, txtEmail.getText());
+            ps.setString(3, new String(txtSenha.getPassword()));
+            ps.setString(4, txtNascimento.getText());
+            ps.setInt(5, userId);
+            ps.executeUpdate();
+            comb.desconectar();
+            JOptionPane.showMessageDialog(this, "Alterações salvas com sucesso!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar alterações: " + e.getMessage());
+        }
+    }
+
+    private void excluirPerfil() {
+        int userId = Usuario.SessaoUsuario.userLogged;
+        int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir o perfil?", "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                conexao comb = new conexao();
+                comb.conectar();
+                Connection conn = comb.getConnection();
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM user WHERE id = ?");
+                ps.setInt(1, userId);
+                ps.executeUpdate();
+                comb.desconectar();
+                JOptionPane.showMessageDialog(this, "Perfil excluído com sucesso.");
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+                frame.dispose();
+                new TestLoginRegisterForm().setVisible(true);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro ao excluir perfil: " + e.getMessage());
+            }
+        }
+    }
+
+    private void excluirUsuario(int id) {
+        int confirm = JOptionPane.showConfirmDialog(this, "Excluir este usuário?", "Confirmação", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                conexao comb = new conexao();
+                comb.conectar();
+                Connection conn = comb.getConnection();
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM user WHERE id = ?");
+                ps.setInt(1, id);
+                ps.executeUpdate();
+                comb.desconectar();
+                JOptionPane.showMessageDialog(this, "Usuário excluído.");
+                carregarPainelAdmin();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
+            }
+        }
+    }
+
+    private void alternarNivel(int id, String nivelAtual) {
+        String novoNivel = nivelAtual.equalsIgnoreCase("administrador") ? "usuario" : "administrador";
+        try {
+            conexao comb = new conexao();
+            comb.conectar();
+            Connection conn = comb.getConnection();
+            PreparedStatement ps = conn.prepareStatement("UPDATE user SET nivel = ? WHERE id = ?");
+            ps.setString(1, novoNivel);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+            comb.desconectar();
+            JOptionPane.showMessageDialog(this, "Nível alterado para " + novoNivel);
+            carregarPainelAdmin();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao alterar nível: " + e.getMessage());
+        }
+    }
 
     private void carregarDadosUsuario() {
         int userId = Usuario.SessaoUsuario.userLogged;
@@ -141,53 +290,6 @@ public class Profile extends BlurChild {
             comb.desconectar();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar dados: " + e.getMessage());
-        }
-    }
-
-
-    private void salvarAlteracoes() {
-        int userId = Usuario.SessaoUsuario.userLogged;
-        String sql = "UPDATE user SET usuario=?, email=?, senha=?, dt_nasc=? WHERE id=?";
-
-        try {
-            conexao comb = new conexao();
-            comb.conectar();
-            Connection conn = comb.getConnection(); // você precisa adicionar esse método `getConnection()` na sua classe de conexão
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, txtUsuario.getText());
-            ps.setString(2, txtEmail.getText());
-            ps.setString(3, new String(txtSenha.getPassword()));
-            ps.setString(4, txtNascimento.getText());
-            ps.setInt(5, userId);
-            ps.executeUpdate();
-            comb.desconectar();
-            JOptionPane.showMessageDialog(this, "Alterações salvas com sucesso!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao salvar alterações: " + e.getMessage());
-        }
-    }
-
-    private void excluirPerfil() {
-        int userId = Usuario.SessaoUsuario.userLogged;
-        int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir o perfil?", "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                conexao comb = new conexao();
-                comb.conectar();
-                Connection conn = comb.getConnection(); // você precisa
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM user WHERE id = ?");
-                ps.setInt(1, userId);
-                ps.executeUpdate();
-                comb.desconectar();
-                JOptionPane.showMessageDialog(this, "Perfil excluído com sucesso.");
-
-                // Redireciona para tela de login
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-                frame.dispose();
-                new TestLoginRegisterForm().setVisible(true);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Erro ao excluir perfil: " + e.getMessage());
-            }
         }
     }
 
