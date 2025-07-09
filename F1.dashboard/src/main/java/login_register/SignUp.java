@@ -123,7 +123,7 @@ public class SignUp extends JPanel {
                 JOptionPane.showMessageDialog(null, "Os emails não conferem!");
                 return;
             }
-
+//teste
             if (!Validador.validarIdadeMinima(dt, 12)) {
                 JOptionPane.showMessageDialog(null, "Você deve ter pelo menos 12 anos e inserir uma data válida.");
                 return;

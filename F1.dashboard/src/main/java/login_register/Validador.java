@@ -2,7 +2,7 @@ package login_register;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
+//teste
 public class Validador {
 
     public static boolean validarIdadeMinima(String dataNascimento, int idadeMinima) {

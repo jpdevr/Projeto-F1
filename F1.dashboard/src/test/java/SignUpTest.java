@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SignUpTest {
-
+//teste
     @Test
     public void testValidarEmailsIguais() {
         assertTrue(SignUp.validarEmails("teste@email.com", "teste@email.com"));
